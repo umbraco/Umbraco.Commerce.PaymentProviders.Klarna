@@ -13,7 +13,6 @@
   "DocumentationUrl": "https://docs.umbraco.com/umbraco-commerce-payment-providers/klarna",
   "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.Commerce.PaymentProviders.Klarna/issues",
   "PackageType": "Package",
-  "IsSubPackageOf": "Umbraco.Commerce",
   "PackagesByAuthor": [
     "Umbraco.Forms",
     "Umbraco.Workflow",
