@@ -1,4 +1,4 @@
-﻿using Umbraco.Commerce.Core.PaymentProviders;
+using Umbraco.Commerce.Core.PaymentProviders;
 using Umbraco.Commerce.PaymentProviders.Klarna.Api.Models;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna
@@ -22,7 +22,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
 
         [PaymentProviderSetting(Name = "Billing Address (Line 1) Property Alias",
-            Description = "The order property alias containing line 1 of the billing address",
+            Description = "[Required] The order property alias containing line 1 of the billing address",
             SortOrder = 500)]
         public string BillingAddressLine1PropertyAlias { get; set; }
 
@@ -32,7 +32,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         public string BillingAddressLine2PropertyAlias { get; set; }
 
         [PaymentProviderSetting(Name = "Billing Address City Property Alias",
-            Description = "The order property alias containing the city of the billing address",
+            Description = "[Required] The order property alias containing the city of the billing address",
             SortOrder = 700)]
         public string BillingAddressCityPropertyAlias { get; set; }
 
@@ -42,7 +42,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         public string BillingAddressStatePropertyAlias { get; set; }
 
         [PaymentProviderSetting(Name = "Billing Address ZipCode Property Alias",
-            Description = "The order property alias containing the zip code of the billing address",
+            Description = "[Required] The order property alias containing the zip code of the billing address",
             SortOrder = 900)]
         public string BillingAddressZipCodePropertyAlias { get; set; }
 
