@@ -256,8 +256,6 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             };
         }
 
-       
-
         public override async Task<CallbackResult> ProcessCallbackAsync(PaymentProviderContext<KlarnaHppSettings> ctx, CancellationToken cancellationToken = default)
         {
             var qs = HttpUtility.ParseQueryString(ctx.Request.RequestUri.Query);

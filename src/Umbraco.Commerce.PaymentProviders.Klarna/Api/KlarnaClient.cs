@@ -1,5 +1,5 @@
 using Flurl.Http;
-using Flurl.Http.Configuration;
+using Flurl.Http.Newtonsoft;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -29,7 +29,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         public async Task<KlarnaMerchantSession> CreateMerchantSessionAsync(KlarnaCreateMerchantSessionOptions opts, CancellationToken cancellationToken = default)
         {
             return await RequestAsync("/payments/v1/sessions", async (req, ct) => await req
-                .PostJsonAsync(opts, ct)
+                .PostJsonAsync(opts, cancellationToken: ct)
                 .ReceiveJson<KlarnaMerchantSession>().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
@@ -37,7 +37,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         public async Task<KlarnaHppSession> CreateHppSessionAsync(KlarnaCreateHppSessionOptions opts, CancellationToken cancellationToken = default)
         {
             return await RequestAsync("/hpp/v1/sessions", async (req, ct) => await req
-                .PostJsonAsync(opts, ct)
+                .PostJsonAsync(opts, cancellationToken: ct)
                 .ReceiveJson<KlarnaHppSession>().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
@@ -45,7 +45,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         public async Task<KlarnaOrder> GetOrderAsync(string orderId, CancellationToken cancellationToken = default)
         {
             return await RequestAsync($"/ordermanagement/v1/orders/{orderId}", async (req, ct) => await req
-                .GetAsync(ct)
+                .GetAsync(cancellationToken: ct)
                 .ReceiveJson<KlarnaOrder>().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
@@ -53,21 +53,21 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         public async Task CancelOrderAsync(string orderId, CancellationToken cancellationToken = default)
         {
             await RequestAsync($"/ordermanagement/v1/orders/{orderId}/cancel", async (req, ct) => await req
-                .PostAsync(null, ct).ConfigureAwait(false),
+                .PostAsync(null, cancellationToken: ct).ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
 
         public async Task CaptureOrderAsync(string orderId, KlarnaCaptureOptions opts, CancellationToken cancellationToken = default)
         {
             await RequestAsync($"/ordermanagement/v1/orders/{orderId}/captures", async (req, ct) => await req
-                .PostJsonAsync(opts, ct).ConfigureAwait(false),
+                .PostJsonAsync(opts, cancellationToken: ct).ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
 
         public async Task RefundOrderAsync(string orderId, KlarnaRefundOptions opts, CancellationToken cancellationToken = default)
         {
             await RequestAsync($"/ordermanagement/v1/orders/{orderId}/refunds", async (req, ct) => await req
-                .PostJsonAsync(opts, ct).ConfigureAwait(false),
+                .PostJsonAsync(opts, cancellationToken: ct).ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
 
@@ -90,7 +90,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         private async Task<TResult> RequestAsync<TResult>(string url, Func<IFlurlRequest, CancellationToken, Task<TResult>> func, CancellationToken cancellationToken = default)
         {
             var req = new FlurlRequest(_config.BaseUrl + url)
-                .ConfigureRequest(x => x.JsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings
+                .WithSettings(x => x.JsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     ObjectCreationHandling = ObjectCreationHandling.Replace,
