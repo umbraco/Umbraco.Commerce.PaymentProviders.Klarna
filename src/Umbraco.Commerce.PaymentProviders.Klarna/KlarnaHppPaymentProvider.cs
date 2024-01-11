@@ -107,7 +107,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             }).ToList();
 
             // Add shipping method fee ctx.Orderline
-            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.Value.WithTax > 0) 
+            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.WithoutAdjustments.WithTax > 0)
             {
                 var shippingMethod = Context.Services.ShippingMethodService.GetShippingMethod(ctx.Order.ShippingInfo.ShippingMethodId.Value);
                 
