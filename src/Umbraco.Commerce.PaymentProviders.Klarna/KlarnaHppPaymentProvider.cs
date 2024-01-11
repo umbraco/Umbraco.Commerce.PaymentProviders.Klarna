@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Umbraco.Commerce.Core.Models;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web;
+using Umbraco.Commerce.Common.Logging;
 using Umbraco.Commerce.Core.Api;
+using Umbraco.Commerce.Core.Models;
 using Umbraco.Commerce.Core.PaymentProviders;
 using Umbraco.Commerce.Extensions;
 using Umbraco.Commerce.PaymentProviders.Klarna.Api;
 using Umbraco.Commerce.PaymentProviders.Klarna.Api.Models;
-using System.Threading.Tasks;
-using System.Web;
-using Umbraco.Commerce.Common.Logging;
-using System.Threading;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna
 {
@@ -107,10 +107,10 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             }).ToList();
 
             // Add shipping method fee ctx.Orderline
-            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.Value.WithTax > 0) 
+            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.Value.WithTax > 0)
             {
                 var shippingMethod = Context.Services.ShippingMethodService.GetShippingMethod(ctx.Order.ShippingInfo.ShippingMethodId.Value);
-                
+
                 orderLines.Add(new KlarnaOrderLine
                 {
                     Reference = shippingMethod.Sku,
@@ -128,7 +128,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             if (ctx.Order.PaymentInfo.TotalPrice.Value.WithTax > 0)
             {
                 var paymentMethod = Context.Services.PaymentMethodService.GetPaymentMethod(ctx.Order.PaymentInfo.PaymentMethodId.Value);
-                
+
                 orderLines.Add(new KlarnaOrderLine
                 {
                     Reference = paymentMethod.Sku,
@@ -157,7 +157,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                     TotalAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax),
                     TotalTaxAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.Tax),
                 });
-            } 
+            }
             else if (ctx.Order.TotalPrice.TotalAdjustment > 0)
             {
                 orderLines.Add(new KlarnaOrderLine
@@ -213,7 +213,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                     PaymentSessionUrl = $"{clientConfig.BaseUrl}/payments/v1/sessions/{resp1.SessionId}",
                     Options = new KlarnaHppOptions
                     {
-                        PlaceOrderMode = ctx.Settings.Capture 
+                        PlaceOrderMode = ctx.Settings.Capture
                             ? KlarnaHppOptions.PlaceOrderModes.CAPTURE_ORDER
                             : KlarnaHppOptions.PlaceOrderModes.PLACE_ORDER,
                         LogoUrl = !string.IsNullOrWhiteSpace(ctx.Settings.PaymentPageLogoUrl)
@@ -240,7 +240,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                         Back = AppendQueryString(ctx.Urls.CancelUrl, "reason=back"),
                         Failure = AppendQueryString(ctx.Urls.CancelUrl, "reason=failure"),
                         Error = AppendQueryString(ctx.Urls.CancelUrl, "reason=error"),
-                        StatusUpdate = AppendQueryString(ctx.Urls.CallbackUrl, "sid={{session_id}}&token="+ klarnaSecretToken),
+                        StatusUpdate = AppendQueryString(ctx.Urls.CallbackUrl, "sid={{session_id}}&token=" + klarnaSecretToken),
                     }
                 },
                 cancellationToken).ConfigureAwait(false);
@@ -271,7 +271,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
                 using (var stream = await ctx.Request.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    var evt = client.ParseSessionEvent(stream);
+                    var evt = KlarnaClient.ParseSessionEvent(stream);
                     if (evt != null && evt.Session.Status == KlarnaSession.Statuses.COMPLETED)
                     {
                         var klarnaOrder = await client.GetOrderAsync(evt.Session.OrderId, cancellationToken).ConfigureAwait(false);

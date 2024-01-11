@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaCreateMerchantSessionOptions : KlarnaOrderBase
     {
-        [JsonProperty("acquiring_channel")]
+        [JsonPropertyName("acquiring_channel")]
         public string AcquiringChannel { get; set; }
 
-        [JsonProperty("merchant_urls")]
+        [JsonPropertyName("merchant_urls")]
         public KlarnaMerchantUrls MerchantUrls { get; set; }
 
         public KlarnaCreateMerchantSessionOptions()
