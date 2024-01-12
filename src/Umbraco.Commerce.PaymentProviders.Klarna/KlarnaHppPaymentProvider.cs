@@ -107,7 +107,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             }).ToList();
 
             // Add shipping method fee ctx.Orderline
-            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.Value.WithTax > 0) 
+            if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.WithoutAdjustments.WithTax > 0)
             {
                 var shippingMethod = Context.Services.ShippingMethodService.GetShippingMethod(ctx.Order.ShippingInfo.ShippingMethodId.Value);
                 
@@ -173,6 +173,26 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 });
             }
 
+            // Add gift cards
+            if (ctx.Order.TransactionAmount.Adjustment.Value < 0)
+            {
+                foreach (GiftCardAdjustment giftcard in ctx.Order.TransactionAmount.Adjustments)
+                {
+                    orderLines.Add(new KlarnaOrderLine
+                    {
+                        Reference = "Gift Card " + giftcard.GiftCardCode,
+                        Name = "Discounts",
+                        Type = KlarnaOrderLine.Types.GIFT_CARD,
+                        TaxRate = (int)(ctx.Order.TaxRate * 10000),
+                        UnitPrice = 0,
+                        Quantity = 1,
+                        TotalDiscountAmount = (int)AmountToMinorUnits(giftcard.Amount) * -1,
+                        TotalAmount = (int)AmountToMinorUnits(giftcard.Amount),
+                        TotalTaxAmount = 0,
+                    });
+                }
+            }
+
             // Create a merchant session
             var resp1 = await client.CreateMerchantSessionAsync(
                 new KlarnaCreateMerchantSessionOptions
@@ -183,7 +203,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                     Locale = ctx.Order.LanguageIsoCode, // TODO: Validate?
 
                     OrderLines = orderLines,
-                    OrderAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.Value.WithTax),
+                    OrderAmount = (int)AmountToMinorUnits(ctx.Order.TransactionAmount.Value),
                     OrderTaxAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.Value.Tax),
 
                     BillingAddress = new KlarnaAddress
