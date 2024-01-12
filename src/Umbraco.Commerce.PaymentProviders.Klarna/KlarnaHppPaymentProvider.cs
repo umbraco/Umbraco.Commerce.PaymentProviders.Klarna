@@ -173,14 +173,14 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 });
             }
 
-            //Add gift card
+            // Add gift cards
             if (ctx.Order.TransactionAmount.Adjustment.Value < 0)
             {
                 foreach (GiftCardAdjustment giftcard in ctx.Order.TransactionAmount.Adjustments)
                 {
                     orderLines.Add(new KlarnaOrderLine
                     {
-                        Reference = "Gift card " + giftcard.GiftCardCode,
+                        Reference = "Gift Card " + giftcard.GiftCardCode,
                         Name = "Discounts",
                         Type = KlarnaOrderLine.Types.GIFT_CARD,
                         TaxRate = (int)(ctx.Order.TaxRate * 10000),
