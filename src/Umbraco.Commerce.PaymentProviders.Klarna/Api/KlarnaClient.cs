@@ -71,7 +71,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
                 cancellationToken).ConfigureAwait(false);
         }
 
-        public static KlarnaSessionEvent ParseSessionEvent(Stream stream)
+        public KlarnaSessionEvent ParseSessionEvent(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream);
 
