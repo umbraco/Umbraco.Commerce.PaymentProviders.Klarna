@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaCaptureOptions
     {
-        [JsonProperty("captured_amount")]
+        [JsonPropertyName("captured_amount")]
         public int CapturedAmount { get; set; }
 
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
     }
 }

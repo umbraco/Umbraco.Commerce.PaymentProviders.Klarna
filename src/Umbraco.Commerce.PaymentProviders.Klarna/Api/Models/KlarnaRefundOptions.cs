@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaRefundOptions
     {
-        [JsonProperty("refunded_amount")]
+        [JsonPropertyName("refunded_amount")]
         public int RefundAmount { get; set; }
 
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
     }
 }

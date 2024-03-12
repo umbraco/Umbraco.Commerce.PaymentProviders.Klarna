@@ -1,38 +1,38 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public abstract class KlarnaOrderBase
     {
-        [JsonProperty("merchant_reference1")]
+        [JsonPropertyName("merchant_reference1")]
         public string MerchantReference1 { get; set; }
 
-        [JsonProperty("merchant_reference2")]
+        [JsonPropertyName("merchant_reference2")]
         public string MerchantReference2 { get; set; }
 
-        [JsonProperty("purchase_country")]
+        [JsonPropertyName("purchase_country")]
         public string PurchaseCountry { get; set; }
 
-        [JsonProperty("purchase_currency")]
+        [JsonPropertyName("purchase_currency")]
         public string PurchaseCurrency { get; set; }
 
-        [JsonProperty("locale")]
+        [JsonPropertyName("locale")]
         public string Locale { get; set; }
 
-        [JsonProperty("order_lines")]
+        [JsonPropertyName("order_lines")]
         public List<KlarnaOrderLine> OrderLines { get; set; }
 
-        [JsonProperty("order_amount")]
+        [JsonPropertyName("order_amount")]
         public int OrderAmount { get; set; }
 
-        [JsonProperty("order_tax_amount")]
+        [JsonPropertyName("order_tax_amount")]
         public int? OrderTaxAmount { get; set; }
 
-        [JsonProperty("billing_address")]
+        [JsonPropertyName("billing_address")]
         public KlarnaAddress BillingAddress { get; set; }
 
-        [JsonProperty("shipping_address")]
+        [JsonPropertyName("shipping_address")]
         public KlarnaAddress ShippingAddress { get; set; }
 
         public KlarnaOrderBase()

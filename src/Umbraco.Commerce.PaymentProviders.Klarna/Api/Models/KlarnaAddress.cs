@@ -1,39 +1,39 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaAddress
     {
-        [JsonProperty("title")]
+        [JsonPropertyName("title")]
         public string Title { get; set; }
-        [JsonProperty("given_name")]
+        [JsonPropertyName("given_name")]
         public string GivenName { get; set; }
 
-        [JsonProperty("family_name")]
+        [JsonPropertyName("family_name")]
         public string FamilyName { get; set; }
 
-        [JsonProperty("street_address")]
+        [JsonPropertyName("street_address")]
         public string StreetAddress { get; set; }
 
-        [JsonProperty("street_address2")]
+        [JsonPropertyName("street_address2")]
         public string StreetAddress2 { get; set; }
 
-        [JsonProperty("city")]
+        [JsonPropertyName("city")]
         public string City { get; set; }
 
-        [JsonProperty("region")]
+        [JsonPropertyName("region")]
         public string Region { get; set; }
 
-        [JsonProperty("country")]
+        [JsonPropertyName("country")]
         public string Country { get; set; }
 
-        [JsonProperty("postal_code")]
+        [JsonPropertyName("postal_code")]
         public string PostalCode { get; set; }
 
-        [JsonProperty("phone")]
+        [JsonPropertyName("phone")]
         public string Phone { get; set; }
 
-        [JsonProperty("email")]
+        [JsonPropertyName("email")]
         public string Email { get; set; }
     }
 }

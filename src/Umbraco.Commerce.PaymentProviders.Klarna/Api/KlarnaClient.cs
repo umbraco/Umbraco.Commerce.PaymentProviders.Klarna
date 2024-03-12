@@ -1,10 +1,10 @@
-using Flurl.Http;
-using Flurl.Http.Newtonsoft;
-using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Flurl.Http;
 using Umbraco.Commerce.PaymentProviders.Klarna.Api.Models;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
@@ -19,7 +19,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
         public const string NaPlaygroundApiUrl = "https://api-na.playground.klarna.com";
         public const string OcPlaygroundApiUrl = "https://api-oc.playground.klarna.com";
 
-        private KlarnaClientConfig _config;
+        private readonly KlarnaClientConfig _config;
 
         public KlarnaClient(KlarnaClientConfig config)
         {
@@ -73,28 +73,24 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
 
         public KlarnaSessionEvent ParseSessionEvent(Stream stream)
         {
-            var serializer = new JsonSerializer();
+            ArgumentNullException.ThrowIfNull(stream);
 
             if (stream.CanSeek)
             {
                 stream.Seek(0, 0);
             }
 
-            using (var sr = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(sr))
-            {
-                return serializer.Deserialize<KlarnaSessionEvent>(jsonTextReader);
-            }
+            return JsonSerializer.Deserialize<KlarnaSessionEvent>(stream);
         }
 
         private async Task<TResult> RequestAsync<TResult>(string url, Func<IFlurlRequest, CancellationToken, Task<TResult>> func, CancellationToken cancellationToken = default)
         {
-            var req = new FlurlRequest(_config.BaseUrl + url)
-                .WithSettings(x => x.JsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings
+            FlurlRequest req = new FlurlRequest(_config.BaseUrl + url)
+                .WithSettings(x => x.JsonSerializer = new CustomFlurlJsonSerializer(new JsonSerializerOptions
                 {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    ObjectCreationHandling = ObjectCreationHandling.Replace,
-                })) 
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PreferredObjectCreationHandling = JsonObjectCreationHandling.Replace,
+                }))
                 .WithHeader("Cache-Control", "no-cache")
                 .WithBasicAuth(_config.Username, _config.Password);
 

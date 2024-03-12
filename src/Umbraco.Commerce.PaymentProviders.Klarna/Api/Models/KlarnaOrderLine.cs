@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
@@ -16,31 +16,31 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
             public const string SURCHARGE = "surcharge";
         }
 
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        [JsonProperty("tax_rate")]
+        [JsonPropertyName("tax_rate")]
         public int? TaxRate { get; set; }
 
-        [JsonProperty("unit_price")]
+        [JsonPropertyName("unit_price")]
         public int? UnitPrice { get; set; }
 
-        [JsonProperty("quantity")]
+        [JsonPropertyName("quantity")]
         public int? Quantity { get; set; }
 
-        [JsonProperty("total_discount_amount")]
+        [JsonPropertyName("total_discount_amount")]
         public int? TotalDiscountAmount { get; set; }
 
-        [JsonProperty("total_tax_amount")]
+        [JsonPropertyName("total_tax_amount")]
         public int? TotalTaxAmount { get; set; }
 
-        [JsonProperty("total_amount")]
+        [JsonPropertyName("total_amount")]
         public int? TotalAmount { get; set; }
     }
 }

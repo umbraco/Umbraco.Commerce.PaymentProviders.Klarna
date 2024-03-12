@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaHppMerchantUrls
     {
-        [JsonProperty("success")]
+        [JsonPropertyName("success")]
         public string Success { get; set; }
 
-        [JsonProperty("cancel")]
+        [JsonPropertyName("cancel")]
         public string Cancel { get; set; }
 
-        [JsonProperty("back")]
+        [JsonPropertyName("back")]
         public string Back { get; set; }
 
-        [JsonProperty("failure")]
+        [JsonPropertyName("failure")]
         public string Failure { get; set; }
 
-        [JsonProperty("error")]
+        [JsonPropertyName("error")]
         public string Error { get; set; }
 
-        [JsonProperty("status_update")]
+        [JsonPropertyName("status_update")]
         public string StatusUpdate { get; set; }
     }
 }

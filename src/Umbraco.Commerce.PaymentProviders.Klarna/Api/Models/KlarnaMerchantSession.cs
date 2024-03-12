@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaMerchantSession
     {
-        [JsonProperty("session_id")]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; set; }
     }
 }

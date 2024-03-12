@@ -1,14 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using System;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaSessionEvent
     {
-        [JsonProperty("event_id")]
+        [JsonPropertyName("event_id")]
         public string EventId { get; set; }
 
-        [JsonProperty("session")]
+        [JsonPropertyName("session")]
         public KlarnaSession Session { get; set; }
     }
 
@@ -26,25 +26,25 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
             public const string DISABLED = "DISABLED";
         }
 
-        [JsonProperty("session_id")]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; set; }
 
-        [JsonProperty("status")]
+        [JsonPropertyName("status")]
         public string Status { get; set; }
 
-        [JsonProperty("authorization_token")]
+        [JsonPropertyName("authorization_token")]
         public string AuthorizationToken { get; set; }
 
-        [JsonProperty("order_id")]
+        [JsonPropertyName("order_id")]
         public string OrderId { get; set; }
 
-        [JsonProperty("klarna_reference")]
+        [JsonPropertyName("klarna_reference")]
         public string KlarnaReference { get; set; }
 
-        [JsonProperty("updated_at")]
+        [JsonPropertyName("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        [JsonProperty("expires_at")]
+        [JsonPropertyName("expires_at")]
         public DateTime ExpiresAt { get; set; }
     }
 }

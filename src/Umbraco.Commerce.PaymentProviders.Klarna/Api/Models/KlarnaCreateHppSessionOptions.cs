@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
     public class KlarnaCreateHppSessionOptions
     {
-        [JsonProperty("payment_session_url")]
+        [JsonPropertyName("payment_session_url")]
         public string PaymentSessionUrl { get; set; }
 
-        [JsonProperty("merchant_urls")]
+        [JsonPropertyName("merchant_urls")]
         public KlarnaHppMerchantUrls MerchantUrls { get; set; }
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public KlarnaHppOptions Options { get; set; }
 
         public KlarnaCreateHppSessionOptions()

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
 {
@@ -22,28 +22,28 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api.Models
             public const string REJECTED = "REJECTED";
         }
 
-        [JsonProperty("order_id")]
+        [JsonPropertyName("order_id")]
         public string OrderId { get; set; }
 
-        [JsonProperty("klarna_reference")]
+        [JsonPropertyName("klarna_reference")]
         public string KlarnaReference { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("original_order_amount")]
+        [JsonPropertyName("original_order_amount")]
         public int OriginalOrderAmount { get; set; }
 
-        [JsonProperty("captured_amount")]
+        [JsonPropertyName("captured_amount")]
         public int CapturedAmount { get; set; }
 
-        [JsonProperty("refunded_amount")]
+        [JsonPropertyName("refunded_amount")]
         public int RefundedAmount { get; set; }
 
-        [JsonProperty("status")]
+        [JsonPropertyName("status")]
         public string Status { get; set; }
 
-        [JsonProperty("fraud_status")]
+        [JsonPropertyName("fraud_status")]
         public string FraudStatus { get; set; }
 
         public KlarnaOrder()
