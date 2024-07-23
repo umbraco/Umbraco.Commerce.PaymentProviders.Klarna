@@ -479,4 +479,5 @@ $RECYCLE.BIN/
 ##
 ## Umbraco Commerce specific
 ##
-/src/Umbraco.Commerce.PaymentProviders.Klarna/packages.lock.json
+/src/**/packages.lock.json
+/tests/**/packages.lock.json

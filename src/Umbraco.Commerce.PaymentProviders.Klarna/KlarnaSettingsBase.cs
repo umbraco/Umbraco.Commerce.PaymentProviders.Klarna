@@ -29,10 +29,8 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         [PaymentProviderSetting(SortOrder = 900)]
         public string BillingAddressZipCodePropertyAlias { get; set; }
 
-
         [PaymentProviderSetting(SortOrder = 1000)]
         public KlarnaApiRegion ApiRegion { get; set; }
-
 
         [PaymentProviderSetting(SortOrder = 1100)]
         public string TestApiUsername { get; set; }
