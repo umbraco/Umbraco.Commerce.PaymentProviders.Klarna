@@ -1,5 +1,5 @@
 export default {
-    paymentProviders: {
+    ucPaymentProviders: {
         'klarnaHppLabel': 'Klarna (HPP)',
         'klarnaHppDescription': 'Klarna payment provider using the Klarna Hosted Payment Page (HPP)',
         'klarnaHppSettingsContinueUrlLabel': 'Continue URL',
