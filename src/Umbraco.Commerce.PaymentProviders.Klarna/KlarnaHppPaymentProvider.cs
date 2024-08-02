@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using Umbraco.Commerce.Common.Logging;
 using Umbraco.Commerce.Core.Api;
 using Umbraco.Commerce.Core.Models;
@@ -14,12 +16,13 @@ using Umbraco.Commerce.PaymentProviders.Klarna.Api.Models;
 
 namespace Umbraco.Commerce.PaymentProviders.Klarna
 {
-    [PaymentProvider("klarna-hpp", "Klarna (HPP)", "Klarna payment provider using the Klarna Hosted Payment Page (HPP)")]
+    [PaymentProvider("klarna-hpp")]
     public class KlarnaHppPaymentProvider : KlarnaPaymentProviderBase<KlarnaHppSettings>
     {
         private readonly ILogger<KlarnaHppPaymentProvider> _logger;
 
-        public KlarnaHppPaymentProvider(UmbracoCommerceContext ctx,
+        public KlarnaHppPaymentProvider(
+            UmbracoCommerceContext ctx,
             ILogger<KlarnaHppPaymentProvider> logger)
             : base(ctx)
         {
@@ -31,7 +34,8 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         public override bool CanCapturePayments => true;
         public override bool CanRefundPayments => true;
 
-        public override IEnumerable<TransactionMetaDataDefinition> TransactionMetaDataDefinitions => new[]{
+        public override IEnumerable<TransactionMetaDataDefinition> TransactionMetaDataDefinitions => new[]
+        {
             new TransactionMetaDataDefinition("klarnaSessionId", "Klarna Session ID"),
             new TransactionMetaDataDefinition("klarnaOrderId", "Klarna Order ID"),
             new TransactionMetaDataDefinition("klarnaReference", "Klarna Reference")
@@ -44,11 +48,11 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
             var cancelUrl = ctx.Settings.CancelUrl;
 
-            if (ctx.Request != null)
+            if (ctx.HttpContext.Request != null)
             {
-                var qs = HttpUtility.ParseQueryString(ctx.Request.RequestUri.Query);
+                IQueryCollection qs = ctx.HttpContext.Request.Query;
 
-                var reason = qs["reason"];
+                StringValues reason = qs["reason"];
 
                 cancelUrl = AppendQueryStringParam(cancelUrl, "reason", reason);
 
@@ -278,10 +282,9 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
         public override async Task<CallbackResult> ProcessCallbackAsync(PaymentProviderContext<KlarnaHppSettings> ctx, CancellationToken cancellationToken = default)
         {
-            var qs = HttpUtility.ParseQueryString(ctx.Request.RequestUri.Query);
-
-            var sessionId = qs["sid"];
-            var token = qs["token"];
+            IQueryCollection qs = ctx.HttpContext.Request.Query;
+            StringValues sessionId = qs["sid"];
+            StringValues token = qs["token"];
 
             if (!string.IsNullOrWhiteSpace(sessionId) && ctx.Order.Properties["klarnaSessionId"] == sessionId
                 && !string.IsNullOrWhiteSpace(token) && ctx.Order.Properties["klarnaSecretToken"] == token)
@@ -289,12 +292,12 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 var clientConfig = GetKlarnaClientConfig(ctx.Settings);
                 var client = new KlarnaClient(clientConfig);
 
-                using (var stream = await ctx.Request.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+                using (Stream stream = ctx.HttpContext.Request.Body)
                 {
-                    var evt = client.ParseSessionEvent(stream);
+                    KlarnaSessionEvent evt = client.ParseSessionEvent(stream);
                     if (evt != null && evt.Session.Status == KlarnaSession.Statuses.COMPLETED)
                     {
-                        var klarnaOrder = await client.GetOrderAsync(evt.Session.OrderId, cancellationToken).ConfigureAwait(false);
+                        KlarnaOrder klarnaOrder = await client.GetOrderAsync(evt.Session.OrderId, cancellationToken).ConfigureAwait(false);
 
                         return new CallbackResult
                         {
@@ -306,10 +309,10 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                                 PaymentStatus = GetPaymentStatus(klarnaOrder)
                             },
                             MetaData = new Dictionary<string, string>
-                        {
-                            { "klarnaOrderId", evt.Session.OrderId },
-                            { "klarnaReference", evt.Session.KlarnaReference }
-                        }
+                            {
+                                { "klarnaOrderId", evt.Session.OrderId },
+                                { "klarnaReference", evt.Session.KlarnaReference },
+                            },
                         };
                     }
                 }

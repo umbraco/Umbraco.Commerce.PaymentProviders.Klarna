@@ -9,7 +9,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
     public abstract class KlarnaPaymentProviderBase<TSettings> : PaymentProviderBase<TSettings>
         where TSettings : KlarnaSettingsBase, new()
     {
-        public KlarnaPaymentProviderBase(UmbracoCommerceContext ctx)
+        protected KlarnaPaymentProviderBase(UmbracoCommerceContext ctx)
             : base(ctx)
         { }
 
@@ -41,13 +41,15 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         {
             if (!settings.TestMode)
             {
-                return new LiveKlarnaClientConfig(settings.LiveApiUsername,
+                return new LiveKlarnaClientConfig(
+                    settings.LiveApiUsername,
                     settings.LiveApiPassword,
                     settings.ApiRegion);
             }
             else
             {
-                return new PlaygroundKlarnaClientConfig(settings.TestApiUsername,
+                return new PlaygroundKlarnaClientConfig(
+                    settings.TestApiUsername,
                     settings.TestApiPassword,
                     settings.ApiRegion);
             }
@@ -67,9 +69,14 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 case KlarnaOrder.Statuses.CAPTURED:
                 case KlarnaOrder.Statuses.PART_CAPTURED:
                     if (order.RefundedAmount > 0)
+                    {
                         status = PaymentStatus.Refunded;
+                    }
                     else
+                    {
                         status = PaymentStatus.Captured;
+                    }
+
                     break;
 
                 case KlarnaOrder.Statuses.REFUNDED:
