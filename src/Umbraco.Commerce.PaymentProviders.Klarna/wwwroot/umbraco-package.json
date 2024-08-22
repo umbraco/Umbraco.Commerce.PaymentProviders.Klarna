@@ -4,13 +4,13 @@
     "extensions": [
       {
         "type": "localization",
-        "alias": "UmbracoCommerce.PaymentProviders.Klarna.Localization.En_US",
+        "alias": "UmbracoCommerce.PaymentProviders.Klarna.Localization.En",
         "weight": -100,
-        "name": "English (US)",
+        "name": "English",
         "meta": {
-          "culture": "en-us"
+          "culture": "en"
         },
-        "js": "/App_Plugins/UmbracoCommerceKlarnaPaymentProvider/lang/en-us.js"
+        "js": "/App_Plugins/UmbracoCommerceKlarnaPaymentProvider/lang/en.js"
       }
     ],
     "version": ""
