@@ -73,17 +73,17 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             var client = new KlarnaClient(clientConfig);
 
             // Get currency information
-            var billingCountry = Context.Services.CountryService.GetCountry(ctx.Order.PaymentInfo.CountryId.Value);
+            var billingCountry = await Context.Services.CountryService.GetCountryAsync(ctx.Order.PaymentInfo.CountryId.Value);
             var billingCountryCode = billingCountry.Code.ToUpperInvariant();
 
             // Ensure billing country has valid ISO 3166 code
-            var iso3166Countries = Context.Services.CountryService.GetIso3166CountryRegions();
-            if (!iso3166Countries.Any(x => x.Code == billingCountryCode))
+            var iso3166Countries = await Context.Services.CountryService.GetIso3166CountryRegionsAsync();
+            if (iso3166Countries.All(x => x.Code != billingCountryCode))
             {
                 throw new Exception("Country must be a valid ISO 3166 billing country code: " + billingCountry.Name);
             }
 
-            var currency = Context.Services.CurrencyService.GetCurrency(ctx.Order.CurrencyId);
+            var currency = await Context.Services.CurrencyService.GetCurrencyAsync(ctx.Order.CurrencyId);
             var currencyCode = currency.Code.ToUpperInvariant();
 
             // Ensure currency has valid ISO 4217 code
@@ -113,7 +113,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             // Add shipping method fee ctx.Orderline
             if (ctx.Order.ShippingInfo.ShippingMethodId.HasValue && ctx.Order.ShippingInfo.TotalPrice.WithoutAdjustments.WithTax > 0)
             {
-                var shippingMethod = Context.Services.ShippingMethodService.GetShippingMethod(ctx.Order.ShippingInfo.ShippingMethodId.Value);
+                var shippingMethod = await Context.Services.ShippingMethodService.GetShippingMethodAsync(ctx.Order.ShippingInfo.ShippingMethodId.Value);
 
                 orderLines.Add(new KlarnaOrderLine
                 {
@@ -131,7 +131,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             // Add payment method fee (as surcharge) ctx.Orderline
             if (ctx.Order.PaymentInfo.TotalPrice.Value.WithTax > 0)
             {
-                var paymentMethod = Context.Services.PaymentMethodService.GetPaymentMethod(ctx.Order.PaymentInfo.PaymentMethodId.Value);
+                var paymentMethod = await Context.Services.PaymentMethodService.GetPaymentMethodAsync(ctx.Order.PaymentInfo.PaymentMethodId.Value);
 
                 orderLines.Add(new KlarnaOrderLine
                 {
