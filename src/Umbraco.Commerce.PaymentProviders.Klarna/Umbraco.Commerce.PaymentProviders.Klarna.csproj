@@ -3,6 +3,8 @@
       <Title>Umbraco Commerce Klarna Payment Provider</Title>
       <Description>Klarna payment provider for Umbraco Commerce</Description>
       <StaticWebAssetBasePath>App_Plugins/UmbracoCommerceKlarnaPaymentProvider</StaticWebAssetBasePath>
+      <NoWarn>IDE0290;IDE0058;CA2007;IDE0021;</NoWarn>
+      <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
