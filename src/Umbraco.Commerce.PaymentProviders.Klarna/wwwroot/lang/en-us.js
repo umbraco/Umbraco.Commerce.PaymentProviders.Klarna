@@ -66,5 +66,9 @@ export default {
 
         'klarnaHppSettingsEnableFallbacksLabel': 'Enable Fallbacks',
         'klarnaHppSettingsEnableFallbacksDescription': 'Set whether to fallback to other payment options if the initial payment attempt fails before redirecting back to the site',
+
+        'klarnaHppMetaDataKlarnaSessionIdLabel': 'Klarna Session ID',
+        'klarnaHppMetaDataKlarnaOrderIdLabel': 'Klarna Order ID',
+        'klarnaHppMetaDataKlarnaReferenceLabel': 'Klarna Reference',
     },
 };

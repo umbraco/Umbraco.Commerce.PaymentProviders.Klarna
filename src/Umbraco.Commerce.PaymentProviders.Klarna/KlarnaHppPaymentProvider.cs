@@ -33,13 +33,14 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         public override bool CanCancelPayments => true;
         public override bool CanCapturePayments => true;
         public override bool CanRefundPayments => true;
+        public override bool CanPartiallyRefundPayments => true;
 
-        public override IEnumerable<TransactionMetaDataDefinition> TransactionMetaDataDefinitions => new[]
-        {
-            new TransactionMetaDataDefinition("klarnaSessionId", "Klarna Session ID"),
-            new TransactionMetaDataDefinition("klarnaOrderId", "Klarna Order ID"),
-            new TransactionMetaDataDefinition("klarnaReference", "Klarna Reference")
-        };
+        public override IEnumerable<TransactionMetaDataDefinition> TransactionMetaDataDefinitions =>
+        [
+            new TransactionMetaDataDefinition("klarnaSessionId"),
+            new TransactionMetaDataDefinition("klarnaOrderId"),
+            new TransactionMetaDataDefinition("klarnaReference"),
+        ];
 
         public override string GetCancelUrl(PaymentProviderContext<KlarnaHppSettings> ctx)
         {
@@ -385,20 +386,48 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             return ApiResult.Empty;
         }
 
-        public override async Task<ApiResult> RefundPaymentAsync(PaymentProviderContext<KlarnaHppSettings> ctx, CancellationToken cancellationToken = default)
+        // TODO Dinh
+        [Obsolete("Will be removed in v17. Use the overload that takes an order refund request instead.")]
+        public override async Task<ApiResult?> RefundPaymentAsync(PaymentProviderContext<KlarnaHppSettings> context, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
+            StoreReadOnly store = await Context.Services.StoreService.GetStoreAsync(context.Order.StoreId);
+            Amount refundAmount = store.CanRefundTransactionFee ? context.Order.TransactionInfo.AmountAuthorized + context.Order.TransactionInfo.TransactionFee : context.Order.TransactionInfo.AmountAuthorized;
+            return await this.RefundPaymentAsync(
+                context,
+                new PaymentProviderOrderRefundRequest
+                {
+                    RefundAmount = refundAmount,
+                    Orderlines = [],
+                },
+                cancellationToken);
+
+        }
+
+        public override async Task<ApiResult?> RefundPaymentAsync(
+            PaymentProviderContext<KlarnaHppSettings> context,
+            PaymentProviderOrderRefundRequest refundRequest,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(refundRequest);
+
             try
             {
-                var orderId = ctx.Order.TransactionInfo.TransactionId;
+                string orderId = context.Order.TransactionInfo.TransactionId;
 
-                var clientConfig = GetKlarnaClientConfig(ctx.Settings);
-                var client = new KlarnaClient(clientConfig);
+                KlarnaClientConfig clientConfig = GetKlarnaClientConfig(context.Settings);
+                KlarnaClient client = new(clientConfig);
 
-                await client.RefundOrderAsync(orderId, new KlarnaRefundOptions
-                {
-                    Description = $"Refund Order {ctx.Order.OrderNumber}",
-                    RefundAmount = (int)AmountToMinorUnits(ctx.Order.TransactionInfo.AmountAuthorized.Value)
-                }, cancellationToken).ConfigureAwait(false);
+                await client.RefundOrderAsync(
+                    orderId,
+                    new KlarnaRefundOptions
+                    {
+                        Description = $"Refund Order {context.Order.OrderNumber}",
+                        RefundAmount = (int)AmountToMinorUnits(refundRequest.RefundAmount),
+                    },
+                    cancellationToken).ConfigureAwait(false);
 
                 return new ApiResult
                 {
@@ -406,17 +435,18 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                     {
                         TransactionId = orderId,
                         PaymentStatus = PaymentStatus.Refunded
-                    }
+                    },
                 };
 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error refunding Klarna payment for ctx.Order {OrderNumber}", ctx.Order.OrderNumber);
+                _logger.Error(ex, "Error refunding Klarna payment for ctx.Order {OrderNumber}", context.Order.OrderNumber);
             }
 
             return ApiResult.Empty;
         }
+
 
         public override async Task<ApiResult> CancelPaymentAsync(PaymentProviderContext<KlarnaHppSettings> ctx, CancellationToken cancellationToken = default)
         {
