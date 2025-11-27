@@ -386,25 +386,6 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             return ApiResult.Empty;
         }
 
-        // TODO Dinh
-        [Obsolete("Will be removed in v17. Use the overload that takes an order refund request instead.")]
-        public override async Task<ApiResult?> RefundPaymentAsync(PaymentProviderContext<KlarnaHppSettings> context, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(context);
-
-            StoreReadOnly store = await Context.Services.StoreService.GetStoreAsync(context.Order.StoreId);
-            Amount refundAmount = store.CanRefundTransactionFee ? context.Order.TransactionInfo.AmountAuthorized + context.Order.TransactionInfo.TransactionFee : context.Order.TransactionInfo.AmountAuthorized;
-            return await this.RefundPaymentAsync(
-                context,
-                new PaymentProviderOrderRefundRequest
-                {
-                    RefundAmount = refundAmount,
-                    Orderlines = [],
-                },
-                cancellationToken);
-
-        }
-
         public override async Task<ApiResult?> RefundPaymentAsync(
             PaymentProviderContext<KlarnaHppSettings> context,
             PaymentProviderOrderRefundRequest refundRequest,
