@@ -11,13 +11,13 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
 {
     public class KlarnaClient
     {
-        public const string EuLiveApiUrl = "https://api.klarna.com";
-        public const string NaLiveApiUrl = "https://api-na.klarna.com";
-        public const string OcLiveApiUrl = "https://api-oc.klarna.com";
+        public const string EuLiveApiUrl = "https://api.kustom.co";
+        public const string NaLiveApiUrl = "https://api-na.kustom.co";
+        public const string OcLiveApiUrl = "https://api-oc.kustom.co";
 
-        public const string EuPlaygroundApiUrl = "https://api.playground.klarna.com";
-        public const string NaPlaygroundApiUrl = "https://api-na.playground.klarna.com";
-        public const string OcPlaygroundApiUrl = "https://api-oc.playground.klarna.com";
+        public const string EuPlaygroundApiUrl = "https://api.playground.kustom.co";
+        public const string NaPlaygroundApiUrl = "https://api-na.playground.kustom.co";
+        public const string OcPlaygroundApiUrl = "https://api-oc.playground.kustom.co";
 
         private readonly KlarnaClientConfig _config;
 
