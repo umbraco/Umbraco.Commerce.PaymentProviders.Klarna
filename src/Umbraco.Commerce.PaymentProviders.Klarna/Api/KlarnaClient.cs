@@ -94,7 +94,15 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
                 .WithHeader("Cache-Control", "no-cache")
                 .WithBasicAuth(_config.Username, _config.Password);
 
-            return await func.Invoke(req, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                return await func.Invoke(req, cancellationToken).ConfigureAwait(false);
+            }
+            catch (FlurlHttpException ex)
+            {
+                var errorBody = await ex.GetResponseStringAsync().ConfigureAwait(false);
+                throw new KlarnaApiException(ex.StatusCode ?? 0, errorBody, ex);
+            }
         }
     }
 }

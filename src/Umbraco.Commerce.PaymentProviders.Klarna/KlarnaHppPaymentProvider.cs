@@ -231,9 +231,9 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
                     MerchantUrls = new KlarnaCheckoutOrderMerchantUrls
                     {
-                        Terms = ctx.Settings.TermsUrl,
-                        Checkout = ctx.Settings.CancelUrl,
-                        Confirmation = ctx.Settings.ContinueUrl,
+                        Terms = new Uri(new Uri(ctx.Urls.CancelUrl), !string.IsNullOrWhiteSpace(ctx.Settings.TermsUrl) ? ctx.Settings.TermsUrl : "/terms").ToString(),
+                        Checkout = ctx.Urls.CancelUrl,
+                        Confirmation = ctx.Urls.ContinueUrl,
                         Push = ctx.Urls.CallbackUrl
                     }
                 },
