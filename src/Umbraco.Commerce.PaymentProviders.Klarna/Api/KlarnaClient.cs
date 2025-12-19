@@ -26,11 +26,11 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
             _config = config;
         }
 
-        public async Task<KlarnaMerchantSession> CreateMerchantSessionAsync(KlarnaCreateMerchantSessionOptions opts, CancellationToken cancellationToken = default)
+        public async Task<KlarnaCheckoutOrder> CreateCheckoutOrderAsync(KlarnaCreateCheckoutOrderOptions opts, CancellationToken cancellationToken = default)
         {
-            return await RequestAsync("/payments/v1/sessions", async (req, ct) => await req
+            return await RequestAsync("/checkout/v3/orders", async (req, ct) => await req
                 .PostJsonAsync(opts, cancellationToken: ct)
-                .ReceiveJson<KlarnaMerchantSession>().ConfigureAwait(false),
+                .ReceiveJson<KlarnaCheckoutOrder>().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
 
