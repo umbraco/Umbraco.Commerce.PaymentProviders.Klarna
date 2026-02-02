@@ -11,9 +11,6 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
         [PaymentProviderSetting(SortOrder = 200)]
         public string CancelUrl { get; set; }
 
-        [PaymentProviderSetting(SortOrder = 250)]
-        public string TermsUrl { get; set; }
-
         [PaymentProviderSetting(SortOrder = 300)]
         public string ErrorUrl { get; set; }
 

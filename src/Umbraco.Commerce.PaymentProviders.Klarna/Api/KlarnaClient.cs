@@ -11,13 +11,13 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
 {
     public class KlarnaClient
     {
-        public const string EuLiveApiUrl = "https://api.kustom.co";
-        public const string NaLiveApiUrl = "https://api-na.kustom.co";
-        public const string OcLiveApiUrl = "https://api-oc.kustom.co";
+        public const string EuLiveApiUrl = "https://api.klarna.com";
+        public const string NaLiveApiUrl = "https://api-na.klarna.com";
+        public const string OcLiveApiUrl = "https://api-oc.klarna.com";
 
-        public const string EuPlaygroundApiUrl = "https://api.playground.kustom.co";
-        public const string NaPlaygroundApiUrl = "https://api-na.playground.kustom.co";
-        public const string OcPlaygroundApiUrl = "https://api-oc.playground.kustom.co";
+        public const string EuPlaygroundApiUrl = "https://api.playground.klarna.com";
+        public const string NaPlaygroundApiUrl = "https://api-na.playground.klarna.com";
+        public const string OcPlaygroundApiUrl = "https://api-oc.playground.klarna.com";
 
         private readonly KlarnaClientConfig _config;
 
@@ -26,11 +26,11 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
             _config = config;
         }
 
-        public async Task<KlarnaCheckoutOrder> CreateCheckoutOrderAsync(KlarnaCreateCheckoutOrderOptions opts, CancellationToken cancellationToken = default)
+        public async Task<KlarnaMerchantSession> CreateMerchantSessionAsync(KlarnaCreateMerchantSessionOptions opts, CancellationToken cancellationToken = default)
         {
-            return await RequestAsync("/checkout/v3/orders", async (req, ct) => await req
+            return await RequestAsync("/payments/v1/sessions", async (req, ct) => await req
                 .PostJsonAsync(opts, cancellationToken: ct)
-                .ReceiveJson<KlarnaCheckoutOrder>().ConfigureAwait(false),
+                .ReceiveJson<KlarnaMerchantSession>().ConfigureAwait(false),
                 cancellationToken).ConfigureAwait(false);
         }
 
@@ -94,15 +94,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
                 .WithHeader("Cache-Control", "no-cache")
                 .WithBasicAuth(_config.Username, _config.Password);
 
-            try
-            {
-                return await func.Invoke(req, cancellationToken).ConfigureAwait(false);
-            }
-            catch (FlurlHttpException ex)
-            {
-                var errorBody = await ex.GetResponseStringAsync().ConfigureAwait(false);
-                throw new KlarnaApiException(ex.StatusCode ?? 0, errorBody, ex);
-            }
+            return await func.Invoke(req, cancellationToken).ConfigureAwait(false);
         }
     }
 }

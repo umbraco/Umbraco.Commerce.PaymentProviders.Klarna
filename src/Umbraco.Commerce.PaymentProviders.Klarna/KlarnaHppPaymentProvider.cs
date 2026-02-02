@@ -198,9 +198,9 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 }
             }
 
-            // Create a checkout order using the Kustom Checkout API
-            var resp1 = await client.CreateCheckoutOrderAsync(
-                new KlarnaCreateCheckoutOrderOptions
+            // Create a merchant session
+            var resp1 = await client.CreateMerchantSessionAsync(
+                new KlarnaCreateMerchantSessionOptions
                 {
                     MerchantReference1 = ctx.Order.OrderNumber,
                     PurchaseCountry = billingCountryCode,
@@ -227,14 +227,6 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                         PostalCode = !string.IsNullOrWhiteSpace(ctx.Settings.BillingAddressZipCodePropertyAlias)
                             ? ctx.Order.Properties[ctx.Settings.BillingAddressZipCodePropertyAlias]?.Value : null,
                         Country = billingCountryCode
-                    },
-
-                    MerchantUrls = new KlarnaCheckoutOrderMerchantUrls
-                    {
-                        Terms = new Uri(new Uri(ctx.Urls.CancelUrl), !string.IsNullOrWhiteSpace(ctx.Settings.TermsUrl) ? ctx.Settings.TermsUrl : "/terms").ToString(),
-                        Checkout = ctx.Urls.CancelUrl,
-                        Confirmation = ctx.Urls.ContinueUrl,
-                        Push = ctx.Urls.CallbackUrl
                     }
                 },
                 cancellationToken).ConfigureAwait(false);
@@ -243,7 +235,7 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             var resp2 = await client.CreateHppSessionAsync(
                 new KlarnaCreateHppSessionOptions
                 {
-                    PaymentSessionUrl = $"{clientConfig.BaseUrl}/checkout/v3/orders/{resp1.OrderId}",
+                    PaymentSessionUrl = $"{clientConfig.BaseUrl}/payments/v1/sessions/{resp1.SessionId}",
                     Options = new KlarnaHppOptions
                     {
                         PlaceOrderMode = ctx.Settings.Capture
@@ -392,6 +384,25 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             }
 
             return ApiResult.Empty;
+        }
+
+        // TODO Dinh
+        [Obsolete("Will be removed in v17. Use the overload that takes an order refund request instead.")]
+        public override async Task<ApiResult?> RefundPaymentAsync(PaymentProviderContext<KlarnaHppSettings> context, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(context);
+
+            StoreReadOnly store = await Context.Services.StoreService.GetStoreAsync(context.Order.StoreId);
+            Amount refundAmount = store.CanRefundTransactionFee ? context.Order.TransactionInfo.AmountAuthorized + context.Order.TransactionInfo.TransactionFee : context.Order.TransactionInfo.AmountAuthorized;
+            return await this.RefundPaymentAsync(
+                context,
+                new PaymentProviderOrderRefundRequest
+                {
+                    RefundAmount = refundAmount,
+                    Orderlines = [],
+                },
+                cancellationToken);
+
         }
 
         public override async Task<ApiResult?> RefundPaymentAsync(
