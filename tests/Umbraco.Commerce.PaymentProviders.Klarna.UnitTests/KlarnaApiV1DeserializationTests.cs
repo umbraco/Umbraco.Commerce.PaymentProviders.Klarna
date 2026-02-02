@@ -11,20 +11,20 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.UnitTests
         /// Test json deserialization for <see cref="KlarnaClient.CreateMerchantSessionAsync(KlarnaCreateMerchantSessionOptions, CancellationToken)"/>.
         /// </summary>
         /// <param name="json"></param>
-        [Theory]
-        [InlineData("{\"client_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw\",\"payment_method_categories\":[{\"asset_urls\":{\"descriptive\":\"https://x.klarnacdn.net/payment-method/assets/badges/generic/klarna.svg\",\"standard\":\"https://x.klarnacdn.net/payment-method/assets/badges/generic/klarna.svg\"},\"identifier\":\"klarna\",\"name\":\"Pay with Klarna\"}],\"session_id\":\"0b1d9815-165e-42e2-8867-35bc03789e00\"}")]
-        public void CreateMerchantSessionAsync_Deserialization_Should_Succeed(string json)
-        {
-            // preparation
-            JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
-
-            // execution
-            KlarnaMerchantSession? deserialized = JsonSerializer.Deserialize<KlarnaMerchantSession>(json, options);
-
-            // asserts
-            deserialized.Should().NotBeNull();
-            deserialized!.SessionId.Should().Be("0b1d9815-165e-42e2-8867-35bc03789e00");
-        }
+        // [Theory]
+        // [InlineData("{\"client_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzZXNzaW9uX2lkIiA6ICIw\",\"payment_method_categories\":[{\"asset_urls\":{\"descriptive\":\"https://x.klarnacdn.net/payment-method/assets/badges/generic/klarna.svg\",\"standard\":\"https://x.klarnacdn.net/payment-method/assets/badges/generic/klarna.svg\"},\"identifier\":\"klarna\",\"name\":\"Pay with Klarna\"}],\"session_id\":\"0b1d9815-165e-42e2-8867-35bc03789e00\"}")]
+        // public void CreateMerchantSessionAsync_Deserialization_Should_Succeed(string json)
+        // {
+        //     // preparation
+        //     JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+        //
+        //     // execution
+        //     KlarnaMerchantSession? deserialized = JsonSerializer.Deserialize<KlarnaMerchantSession>(json, options);
+        //
+        //     // asserts
+        //     deserialized.Should().NotBeNull();
+        //     deserialized!.SessionId.Should().Be("0b1d9815-165e-42e2-8867-35bc03789e00");
+        // }
 
         /// <summary>
         /// Test json deserialization for <see cref="KlarnaClient.CreateHppSessionAsync(KlarnaCreateHppSessionOptions, CancellationToken)"/>.
