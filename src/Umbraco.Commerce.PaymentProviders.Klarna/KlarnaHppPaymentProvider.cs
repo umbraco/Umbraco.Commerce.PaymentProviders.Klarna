@@ -150,31 +150,44 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
             // Add any discounts
             if (ctx.Order.TotalPrice.TotalAdjustment < 0)
             {
+                // Derive the tax rate from the discount's own tax vs net amounts rather than
+                // the order's blended rate, so tax_rate and total_tax_amount stay consistent
+                // (e.g. a discount applied to a 0% VAT line must report tax_rate 0). Fixes #826.
+                var discountWithTax = AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax);
+                var discountTax = AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.Tax);
+                var discountNet = discountWithTax - discountTax;
+
                 orderLines.Add(new KlarnaOrderLine
                 {
                     Reference = "DISCOUNT",
                     Name = "Discounts",
                     Type = KlarnaOrderLine.Types.DISCOUNT,
-                    TaxRate = (int)(ctx.Order.TaxRate * 10000),
+                    TaxRate = discountNet != 0 ? (int)Math.Round((decimal)discountTax / discountNet * 10000) : 0,
                     UnitPrice = 0,
                     Quantity = 1,
-                    TotalDiscountAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax) * -1,
-                    TotalAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax),
-                    TotalTaxAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.Tax),
+                    TotalDiscountAmount = (int)discountWithTax * -1,
+                    TotalAmount = (int)discountWithTax,
+                    TotalTaxAmount = (int)discountTax,
                 });
             }
             else if (ctx.Order.TotalPrice.TotalAdjustment > 0)
             {
+                // Derive the tax rate from the fee's own tax vs net amounts rather than
+                // the order's blended rate, so tax_rate and total_tax_amount stay consistent. Fixes #826.
+                var feeWithTax = AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax);
+                var feeTax = AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.Tax);
+                var feeNet = feeWithTax - feeTax;
+
                 orderLines.Add(new KlarnaOrderLine
                 {
                     Reference = "FEE",
                     Name = "Additional Fees",
                     Type = KlarnaOrderLine.Types.SURCHARGE,
-                    TaxRate = (int)(ctx.Order.TaxRate * 10000),
+                    TaxRate = feeNet != 0 ? (int)Math.Round((decimal)feeTax / feeNet * 10000) : 0,
                     UnitPrice = 0,
                     Quantity = 1,
-                    TotalAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.WithTax),
-                    TotalTaxAmount = (int)AmountToMinorUnits(ctx.Order.TotalPrice.TotalAdjustment.Tax),
+                    TotalAmount = (int)feeWithTax,
+                    TotalTaxAmount = (int)feeTax,
                 });
             }
 
