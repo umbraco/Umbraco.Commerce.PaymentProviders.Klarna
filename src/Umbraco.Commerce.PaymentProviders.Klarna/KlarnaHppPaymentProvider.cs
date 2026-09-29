@@ -375,10 +375,15 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 var clientConfig = GetKlarnaClientConfig(ctx.Settings);
                 var client = new KlarnaClient(clientConfig);
 
+                // Capture no more than the order's current total. A post-finalized edit (e.g. removing
+                // an order line) can reduce the order below the original authorized amount, and Commerce
+                // itself only ever records the current total as captured (PaymentService.CaptureOrderPaymentAsync).
+                var captureAmount = Math.Min(ctx.Order.TransactionAmount.Value, ctx.Order.TransactionInfo.AmountAuthorized.Value);
+
                 await client.CaptureOrderAsync(orderId, new KlarnaCaptureOptions
                 {
                     Description = $"Capture Order {ctx.Order.OrderNumber}",
-                    CapturedAmount = (int)AmountToMinorUnits(ctx.Order.TransactionInfo.AmountAuthorized.Value)
+                    CapturedAmount = (int)AmountToMinorUnits(captureAmount)
                 }, cancellationToken).ConfigureAwait(false);
 
                 return new ApiResult
