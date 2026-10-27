@@ -419,6 +419,9 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                 KlarnaClientConfig clientConfig = GetKlarnaClientConfig(context.Settings);
                 KlarnaClient client = new(clientConfig);
 
+                // Core records the refund after this call, so the refundable amount is still the pre-refund balance
+                var refundableAmount = await context.Order.CalculateRefundableAmountAsync().ConfigureAwait(false);
+
                 await client.RefundOrderAsync(
                     orderId,
                     new KlarnaRefundOptions
@@ -433,7 +436,9 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
                     TransactionInfo = new TransactionInfoUpdate
                     {
                         TransactionId = orderId,
-                        PaymentStatus = PaymentStatus.Refunded
+                        PaymentStatus = refundRequest.RefundAmount >= refundableAmount
+                            ? PaymentStatus.Refunded
+                            : PaymentStatus.PartiallyRefunded
                     },
                 };
 
