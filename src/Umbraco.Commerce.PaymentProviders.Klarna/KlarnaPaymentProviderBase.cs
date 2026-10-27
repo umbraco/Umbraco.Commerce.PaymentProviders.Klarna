@@ -68,7 +68,11 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
                 case KlarnaOrder.Statuses.CAPTURED:
                 case KlarnaOrder.Statuses.PART_CAPTURED:
-                    if (order.RefundedAmount > 0)
+                    if (order.RefundedAmount > 0 && order.RefundedAmount < order.CapturedAmount)
+                    {
+                        status = PaymentStatus.PartiallyRefunded;
+                    }
+                    else if (order.RefundedAmount > 0)
                     {
                         status = PaymentStatus.Refunded;
                     }
