@@ -8,7 +8,7 @@ using Umbraco.Commerce.PaymentProviders.Klarna.Api.Models;
 namespace Umbraco.Commerce.PaymentProviders.Klarna.UnitTests
 {
     // Every KlarnaClient call is run against Flurl's HttpTest, so no request leaves the process.
-    public class KlarnaClientTests : IDisposable
+    public sealed class KlarnaClientTests : IDisposable
     {
         private readonly HttpTest _httpTest = new();
         private readonly KlarnaClient _client = new(new PlaygroundKlarnaClientConfig("user", "pass", KlarnaApiRegion.Europe));
