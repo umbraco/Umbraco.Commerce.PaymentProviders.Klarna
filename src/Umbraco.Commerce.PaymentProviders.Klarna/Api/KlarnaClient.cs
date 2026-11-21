@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -81,6 +82,29 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.Api
             }
 
             return JsonSerializer.Deserialize<KlarnaSessionEvent>(stream);
+        }
+
+        /// <summary>
+        /// Asynchronously parses a session event from the given stream.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="ParseSessionEvent(Stream)"/>, this overload only performs asynchronous
+        /// reads, which makes it safe to use directly with an unbuffered ASP.NET Core request body
+        /// stream. On Kestrel/IIS with the default <c>AllowSynchronousIO = false</c>, the synchronous
+        /// overload throws <see cref="InvalidOperationException"/> ("Synchronous operations are
+        /// disallowed") unless the request body has been buffered into a seekable stream beforehand.
+        /// </remarks>
+        /// <param name="stream">The stream containing the serialized session event JSON.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public async Task<KlarnaSessionEvent> ParseSessionEventAsync(Stream stream, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+
+            using (var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true))
+            {
+                string json = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+                return JsonSerializer.Deserialize<KlarnaSessionEvent>(json);
+            }
         }
 
         private async Task<TResult> RequestAsync<TResult>(string url, Func<IFlurlRequest, CancellationToken, Task<TResult>> func, CancellationToken cancellationToken = default)

@@ -308,7 +308,11 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna
 
                 using (Stream stream = ctx.HttpContext.Request.Body)
                 {
-                    KlarnaSessionEvent evt = client.ParseSessionEvent(stream);
+                    // Read the body asynchronously: on the versioned API callback routes
+                    // (/umbraco/commerce/payment/api/v1/callback/...) the request body is not
+                    // buffered by Umbraco Commerce, so a synchronous read throws
+                    // "Synchronous operations are disallowed" on Kestrel/IIS.
+                    KlarnaSessionEvent evt = await client.ParseSessionEventAsync(stream, cancellationToken).ConfigureAwait(false);
                     if (evt != null && evt.Session.Status == KlarnaSession.Statuses.COMPLETED)
                     {
                         KlarnaOrder klarnaOrder = await client.GetOrderAsync(evt.Session.OrderId, cancellationToken).ConfigureAwait(false);
