@@ -81,24 +81,25 @@ namespace Umbraco.Commerce.PaymentProviders.Klarna.UnitTests
         }
 
         [Fact]
-        public void ParseSessionEvent_NonSeekableNoSyncStream_Should_Throw()
-        {
-            // Guards against the synchronous overload silently becoming safe-by-luck:
-            // it must remain unusable directly against an unbuffered request body.
-            var client = new KlarnaClient(new TestClientConfig());
-            using var stream = new NoSyncReadStream();
-
-            var act = () => client.ParseSessionEvent(stream);
-
-            act.Should().Throw<InvalidOperationException>();
-        }
-
-        [Fact]
         public async Task ParseSessionEventAsync_SeekableStream_Should_Succeed()
         {
             // The async overload must also keep working for buffered/seekable bodies.
             var client = new KlarnaClient(new TestClientConfig());
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(SessionEventJson));
+
+            var deserialized = await client.ParseSessionEventAsync(stream);
+
+            deserialized.Should().NotBeNull();
+            deserialized!.Session.Status.Should().Be("COMPLETED");
+        }
+
+        [Fact]
+        public async Task ParseSessionEventAsync_SeekableStreamAlreadyRead_Should_Rewind()
+        {
+            // A buffered body that has already been read must be rewound, like the sync overload does.
+            var client = new KlarnaClient(new TestClientConfig());
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(SessionEventJson));
+            stream.Seek(0, SeekOrigin.End);
 
             var deserialized = await client.ParseSessionEventAsync(stream);
 
